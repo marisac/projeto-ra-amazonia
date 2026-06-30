@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realidade Aumentada - Floresta em Chamas</title>
+    <!-- Carrega o A-Frame e o MindAR para WebXR -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        /* Botão para iniciar o vídeo após a interação do usuário (exigência dos navegadores) */
+        #play-button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            padding: 12px 24px;
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Botão de sobreposição para dar o play inicial no vídeo -->
+    <button id="play-button">Ativar Áudio/Vídeo</button>
+
+    <!-- Configuração da cena do MindAR apontando para o seu arquivo de alvo -->
+    <a-scene mindar-image="imageTargetSrc: ./alvoflorestachamas.mind; autoStart: true; uiLoading: yes; uiScanning: yes;" 
+             color-space="sRGB" 
+             renderer="colorManagement: true, physicallyCorrectLights" 
+             vr-mode-ui="enabled: false" 
+             device-orientation-permission-ui="enabled: false">
+        
+        <a-assets>
+            <!-- Carrega o vídeo renomeado. O atributo playsinline é crucial para mobile -->
+            <video id="video-floresta" src="./Florestachamas.mp4" preload="auto" loop="true" playsinline webkit-playsinline></video>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <!-- Target index 0 (primeiro alvo mapeado no arquivo .mind) -->
+        <a-entity mindar-image-target="targetIndex: 0" id="target-floresta">
+            <!-- Plano onde o vídeo será renderizado sobre o alvo físico -->
+            <a-video src="#video-floresta" width="1" height="1.77" position="0 0 0" rotation="0 0 0"></a-video>
+        </a-entity>
+        
+    </a-scene>
+
+    <script>
+        const video = document.querySelector('#video-floresta');
+        const button = document.querySelector('#play-button');
+        const target = document.querySelector('#target-floresta');
+
+        // Desbloqueia o autoplay do vídeo através do clique no botão
+        button.addEventListener('click', () => {
+            video.play();
+            video.pause(); // Dá o play/pause rápido para o navegador liberar o canal de áudio
+            button.style.display = 'none'; // Esconde o botão após o clique
+        });
+
+        // Controle inteligente: só toca o vídeo se o alvo estiver visível na câmera
+        target.addEventListener('targetFound', event => {
+            console.log("Alvo floresta encontrado");
+            video.play();
+        });
+
+        target.addEventListener('targetLost', event => {
+            console.log("Alvo perdido");
+            video.pause();
+        });
+    </script>
+</body>
+</html>
