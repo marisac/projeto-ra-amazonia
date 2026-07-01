@@ -12,55 +12,98 @@
     body {
       margin: 0;
       overflow: hidden;
+      background: black; /* Fundo preto caso o vídeo demore a carregar */
+    }
+
+    /* CONTAINER DO VÍDEO NO AR */
+    #ar-video-container {
+      display: none; /* Começa oculto */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100vw; /* Ocupa a largura total da tela */
+      height: 177.77vw; /* Mantém a proporção 16:9 vertical (1280x720) */
+      
+      /* EFEITO TRIDIMENSIONAL E ESTABILIZAÇÃO VIA CSS */
+      transform: translate(-50%, -50%) rotateX(20deg) scale(0.1); 
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      
+      /* Animação de suavização e movimento suave */
+      transition: transform 1.5s ease-out, opacity 1s ease;
+      opacity: 0;
+      z-index: 10;
+    }
+
+    /* O VÍDEO EM SI */
+    #video-floresta {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* Garante que o vídeo não corte */
+    }
+
+    /* CLASSE PARA ATIVAR O EFEITO DE SURGIMENTO E CRESCIMENTO */
+    #ar-video-container.active {
+      display: block;
+      opacity: 1;
+      /* O vídeo cresce de 0.1 para 1.0, ocupando a tela inteira, mantendo a inclinação */
+      transform: translate(-50%, -50%) rotateX(20deg) scale(1);
     }
   </style>
 </head>
 <body>
 
   <a-scene 
-    mindar-image="imageTargetSrc: ./alvoflorestachamas.mind; filterMinCF: 0.001; filterBeta: 10;" 
+    mindar-image="imageTargetSrc: ./alvoflorestachamas.mind; autoStart: true; uiLoading: no; uiError: no;" 
     color-space="sRGB" 
-    renderer="colorManagement: true, physicallyCorrectLights: true; antialias: true;" 
+    renderer="colorManagement: true, PhysicallyCorrectLights: true" 
     vr-mode-ui="enabled: false" 
     device-orientation-permission-ui="enabled: false">
     
     <a-assets>
-      <video id="video-floresta" src="Florestachamas.mp4" preload="auto" loop="true" playsinline webkit-playsinline crossorigin="anonymous"></video>
+      <video id="video-source" src="Florestachamas.mp4" preload="auto" loop="true" playsinline webkit-playsinline crossorigin="anonymous"></video>
     </a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <a-entity mindar-image-target="targetIndex: 0">
-      
-      <a-plane 
-        id="target-video"
-        src="#video-floresta" 
-        width="1" 
-        height="1.77" 
-        position="0 0 0.3" 
-        rotation="-20 0 0"
-        material="shader: flat; side: double; transparent: false; opacity: 1;"
-        scale="0.1 0.1 0.1"
-        animation__scale="property: scale; from: 0.1 0.1 0.1; to: 2.5 2.5 2.5; dur: 2000; easing: easeOutQuad; startEvents: targetFound">
-      </a-plane>
-
-    </a-entity>
+    <a-entity mindar-image-target="targetIndex: 0" id="target-listener"></a-entity>
   </a-scene>
 
-  <script>
-    const entity = document.querySelector('[mindar-image-target]');
-    const video = document.querySelector('#video-floresta');
-    const aPlane = document.querySelector('#target-video');
+  <div id="ar-video-container">
+    <video id="video-floresta" loop="true" playsinline webkit-playsinline></video>
+  </div>
 
-    // Garante que o vídeo toque imediatamente ao reconhecer o alvo
-    entity.addEventListener("targetFound", event => {
-      video.play();
+  <script>
+    const sceneEl = document.querySelector('a-scene');
+    const targetEl = document.querySelector('#target-listener');
+    const videoSource = document.querySelector('#video-source');
+    const videoHTML = document.querySelector('#video-floresta');
+    const arContainer = document.querySelector('#ar-video-container');
+
+    // Ao reconhecer o marcador
+    targetEl.addEventListener("targetFound", event => {
+      // 1. Sincroniza o vídeo HTML com a fonte original e dá Play
+      if (!videoHTML.src) videoHTML.src = videoSource.src;
+      videoHTML.play();
+      
+      // 2. Ativa a classe CSS que faz o efeito de crescer e sair do marcador
+      arContainer.style.display = 'block'; // Garante que a div apareça
+      setTimeout(() => {
+        arContainer.classList.add('active'); // Inicia a animação de crescimento
+      }, 50); // Pequeno atraso para o navegador processar
     });
 
-    // Pausa e reseta a escala para o efeito acontecer de novo na próxima vez
-    entity.addEventListener("targetLost", event => {
-      video.pause();
-      aPlane.setAttribute('scale', '0.1 0.1 0.1');
+    // Ao perder o marcador
+    targetEl.addEventListener("targetLost", event => {
+      videoHTML.pause();
+      // Remove o efeito para o próximo escaneamento
+      arContainer.classList.remove('active');
+      // Oculta a div após a animação de saída (opcional, para performance)
+      setTimeout(() => {
+        if (!arContainer.classList.contains('active')) {
+          arContainer.style.display = 'none';
+        }
+      }, 1500); 
     });
   </script>
 
