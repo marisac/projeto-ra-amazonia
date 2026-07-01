@@ -39,10 +39,8 @@
         height="1.77" 
         position="0 0 0.2" 
         rotation="-20 0 0"
-        scale="0.001 0.001 0.001"
-        material="opacity: 0"
-        animation__scale="property: scale; from: 0.001 0.001 0.001; to: 2.5 2.5 2.5; dur: 2500; easing: easeOutQuad; startEvents: targetFound"
-        animation__fade="property: material.opacity; from: 0; to: 1; dur: 1000; easing: linear; startEvents: targetFound">
+        scale="0.01 0.01 0.01"
+        animation__scale="property: scale; from: 0.01 0.01 0.01; to: 2.5 2.5 2.5; dur: 2000; easing: easeOutQuad; startEvents: targetFound">
       </a-video>
 
     </a-entity>
@@ -54,14 +52,14 @@
     const aVideo = document.querySelector('#target-video');
 
     entity.addEventListener("targetFound", event => {
+      // Força o play do vídeo
       video.play();
     });
 
     entity.addEventListener("targetLost", event => {
       video.pause();
-      // Reseta a escala e opacidade para o efeito reiniciar no próximo escaneamento
-      aVideo.setAttribute('scale', '0.001 0.001 0.001');
-      aVideo.setAttribute('material', 'opacity: 0');
+      // Reseta o tamanho para que o efeito de crescer e sair do marcador aconteça novamente ao reencontrar
+      aVideo.setAttribute('scale', '0.01 0.01 0.01');
     });
   </script>
 
