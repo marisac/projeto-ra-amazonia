@@ -29,3 +29,8 @@ Musa (Museu da Amazônia) . Título da Obra Diadoe> Resumo descritivo:Uma cobra 
 "O acervo museológico digitalizado do Museu da Amazônia (MUSA) está acessível no catálogo online para consulta e download de parte de seus itens. Os metadados estão disponíveis para reutilização sem restrições."
 Link para acesso às obras de Feliciano Lana e informações:
 https://museudaamazonia.org.br/pinturas-de-feliciano-lana/ 
+
+## Acesso ao manual de orientação para criar uma RA e utilizar os arquivos para geração de uma nova RA
+
+https://drive.google.com/file/d/1BjT14fHVQGUyogC2vGfG_Fz5hxzfdZF4/view?usp=sharing 
+
